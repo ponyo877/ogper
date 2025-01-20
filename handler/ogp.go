@@ -7,10 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
@@ -45,20 +45,13 @@ func (h *Handler) GenerateAltURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a new file in the uploads directory
-	dst, err := os.Create(filepath.Join("uploads", handler.Filename))
-	if err != nil {
-		log.Printf("Error : %v\n", err)
-		http.Error(w, "Error creating the file", http.StatusInternalServerError)
-		return
-	}
-	defer dst.Close()
+	// ファイルサイズを取得
+	fileSize := handler.Size
 
-	// Copy the uploaded file to the destination file
-	_, err = io.Copy(dst, file)
-	if err != nil {
+	// 署名付きペイロードでアップロード
+	if err := UploadFileWithSignedPayload(handler.Filename, file, fileSize); err != nil {
 		log.Printf("Error : %v\n", err)
-		http.Error(w, "Error saving the file", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -74,64 +67,60 @@ func (h *Handler) GetRedirectPage(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello, World!\n"))
 }
 
-func s3api() {
+func UploadFileWithSignedPayload(filename string, f io.Reader, size int64) error {
 	accountID := os.Getenv("ACCOUNT_ID")
+	accessKeyID := os.Getenv("ACCESS_KEY_ID")
+	accessKeySecret := os.Getenv("ACCESS_KEY_SECRET")
 
 	endpoint := fmt.Sprintf("https://%s.r2.cloudflarestorage.com", accountID)
-	bucket := "my-first-bucket"
-	object := "aya2.png"
-
-	resolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, opts ...interface{}) (aws.Endpoint, error) {
-		return aws.Endpoint{
-			URL:               endpoint,
-			HostnameImmutable: true,
-			SigningRegion:     region,
-		}, nil
-	})
+	bucket := "ogp"
 
 	cfg, err := config.LoadDefaultConfig(
 		context.TODO(),
-		config.WithRegion("APAC"),
-		config.WithEndpointResolverWithOptions(resolver),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyID, accessKeySecret, "")),
+		config.WithRegion("auto"),
+		// config.WithRequestChecksumCalculation(0),
+		// config.WithResponseChecksumValidation(0),
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("failed to LoadDefaultConfig: %v", err)
+		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	// **aws の** s3 client を作成する。
-	client := s3.NewFromConfig(cfg)
+	client := s3.NewFromConfig(
+		cfg,
+		func(o *s3.Options) {
+			o.BaseEndpoint = aws.String(endpoint)
+			// o.UseAccelerate = false
+			// o.UsePathStyle = true
+		},
+	)
 
-	f, _ := os.Open("upload_test.jpg")
-	out, err := client.PutObject(context.TODO(), &s3.PutObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String("upload_test.jpg"),
-		Body:   f,
-	})
+	_, err = client.PutObject(
+		context.TODO(),
+		&s3.PutObjectInput{
+			Bucket:        aws.String(bucket),
+			Key:           aws.String(filename),
+			Body:          f,
+			ContentLength: aws.Int64(size),
+			ContentType:   aws.String("image/png"),
+		},
+	)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("failed to PutObject: %s", err.Error())
+		return fmt.Errorf("failed to upload file: %w", err)
 	}
-	fmt.Printf("out: %v\n", out)
+	// presignClient := s3.NewPresignClient(client)
 
-	// ========= Get an object =========
-	obj, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(object),
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
+	// presignResult, err := presignClient.PresignPutObject(context.TODO(), &s3.PutObjectInput{
+	// 	Bucket: aws.String(bucket),
+	// 	Key:    aws.String("images.jpeg"),
+	// })
 
-	writeFile(obj.Body)
-}
+	// if err != nil {
+	// 	panic("Couldn't get presigned URL for PutObject")
+	// }
 
-func writeFile(body io.ReadCloser) {
-	defer body.Close()
-
-	f, err := os.Create("test.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-
-	io.Copy(f, body)
+	// fmt.Printf("Presigned URL For object: %s\n", presignResult.URL)
+	return nil
 }

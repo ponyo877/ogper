@@ -11,6 +11,5 @@ func NewHandler(usecase Usecase) *Handler {
 }
 
 type Usecase interface {
-	GenerateAltURL(stream io.Reader, size int64) error
-	GetRedirectPage() error
+	GenerateAltURL(stream io.Reader, size int64, siteURL string) error
 }

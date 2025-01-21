@@ -35,3 +35,7 @@ func (r *Repository) PutFile(file []byte, filename, contentType string) error {
 	}
 	return nil
 }
+
+func (r *Repository) CreateSite(imageURL, siteURL string) error {
+	return nil
+}

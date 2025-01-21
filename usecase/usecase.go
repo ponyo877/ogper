@@ -12,15 +12,15 @@ type Usecase struct {
 }
 
 type Repository interface {
-	GetRedirectPage() error
 	PutFile(file []byte, filename, contentType string) error
+	CreateSite(imageURL, siteURL string) error
 }
 
 func NewUsecase(repository Repository) *Usecase {
 	return &Usecase{repository: repository}
 }
 
-func (u *Usecase) GenerateAltURL(file io.Reader, size int64) error {
+func (u *Usecase) GenerateAltURL(file io.Reader, size int64, siteURL string) error {
 	filedata := make([]byte, size)
 	if _, err := file.Read(filedata); err != nil {
 		return err
@@ -38,9 +38,9 @@ func (u *Usecase) GenerateAltURL(file io.Reader, size int64) error {
 	if err := u.repository.PutFile(filedata, filename, contentType); err != nil {
 		return err
 	}
-	return nil
-}
-
-func (u *Usecase) GetRedirectPage() error {
+	imageURL := "https://r2.folks-chat.com/" + filename
+	if err := u.repository.CreateSite(imageURL, siteURL); err != nil {
+		return err
+	}
 	return nil
 }

@@ -30,19 +30,11 @@ func (h *Handler) GenerateAltURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.usecase.GenerateAltURL(stream, header.Size); err != nil {
+	if err := h.usecase.GenerateAltURL(stream, header.Size, url); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	fmt.Fprintf(w, "File uploaded successfully: %s\n", header.Filename)
 	fmt.Fprintf(w, "URL: %s\n", url)
-}
-
-func (h *Handler) GetRedirectPage(w http.ResponseWriter, r *http.Request) {
-	if err := h.usecase.GetRedirectPage(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Write([]byte("Hello, World!\n"))
 }

@@ -3,6 +3,7 @@ package repository
 import (
 	"bytes"
 	"context"
+	"database/sql"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -10,12 +11,14 @@ import (
 
 type Repository struct {
 	storage *s3.Client
+	db      *sql.DB
 	bucket  string
 }
 
-func NewRepository(storage *s3.Client, bucket string) *Repository {
+func NewRepository(storage *s3.Client, db *sql.DB, bucket string) *Repository {
 	return &Repository{
 		storage,
+		db,
 		bucket,
 	}
 }
@@ -36,6 +39,10 @@ func (r *Repository) PutFile(file []byte, filename, contentType string) error {
 	return nil
 }
 
-func (r *Repository) CreateSite(imageURL, siteURL string) error {
+func (r *Repository) CreateSite(title, description, name, siteURL, imageURL string) error {
+	query := "INSERT INTO sites (title, description, name, url, image_url) VALUES (?, ?, ?, ?, ?)"
+	if _, err := r.db.Exec(query, title, description, name, siteURL, imageURL); err != nil {
+		return err
+	}
 	return nil
 }

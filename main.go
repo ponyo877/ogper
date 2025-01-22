@@ -17,7 +17,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	repository := repository.NewRepository(storage, bucket)
+	db, err := config.NewMySQLConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	repository := repository.NewRepository(storage, db, bucket)
 	usecase := usecase.NewUsecase(repository)
 	handler := handler.NewHandler(usecase)
 	mux.HandleFunc("POST /upload", handler.GenerateAltURL)

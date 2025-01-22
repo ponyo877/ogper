@@ -13,7 +13,7 @@ type Usecase struct {
 
 type Repository interface {
 	PutFile(file []byte, filename, contentType string) error
-	CreateSite(imageURL, siteURL string) error
+	CreateSite(title, description, name, siteURL, imageURL string) error
 }
 
 func NewUsecase(repository Repository) *Usecase {
@@ -39,8 +39,5 @@ func (u *Usecase) GenerateAltURL(file io.Reader, size int64, siteURL string) err
 		return err
 	}
 	imageURL := "https://r2.folks-chat.com/" + filename
-	if err := u.repository.CreateSite(imageURL, siteURL); err != nil {
-		return err
-	}
-	return nil
+	return u.repository.CreateSite("title", "description", "name", siteURL, imageURL)
 }

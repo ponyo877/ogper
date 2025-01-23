@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/oklog/ulid/v2"
-	"github.com/ponyo877/repost-ogp-pages/domain"
+	"github.com/ponyo877/ogper/domain"
 )
 
 type Usecase struct {

@@ -4,11 +4,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ponyo877/repost-ogp-pages/config"
-	"github.com/ponyo877/repost-ogp-pages/handler"
-	"github.com/ponyo877/repost-ogp-pages/middleware"
-	"github.com/ponyo877/repost-ogp-pages/repository"
-	"github.com/ponyo877/repost-ogp-pages/usecase"
+	"github.com/ponyo877/ogper/config"
+	"github.com/ponyo877/ogper/handler"
+	"github.com/ponyo877/ogper/middleware"
+	"github.com/ponyo877/ogper/repository"
+	"github.com/ponyo877/ogper/usecase"
 )
 
 func main() {
@@ -17,7 +17,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	db, err := config.NewMySQLConfig()
+	// db, err := config.NewMySQLConfig()
+	db, err := config.NewPosrgreSQLConfig()
 	if err != nil {
 		log.Fatal(err)
 	}

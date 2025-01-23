@@ -10,7 +10,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/ponyo877/repost-ogp-pages/domain"
+	"github.com/ponyo877/ogper/domain"
 )
 
 //go:embed ogp.html.tmpl
@@ -45,8 +45,8 @@ func (r *Repository) PutFile(file []byte, filename, contentType string) error {
 }
 
 func (r *Repository) CreateSite(site *domain.Site) error {
-
-	query := "INSERT INTO sites (hash, title, description, name, site_url, image_url) VALUES (?, ?, ?, ?, ?, ?)"
+	query := "INSERT INTO sites (hash, title, description, name, site_url, image_url) VALUES ($1, $2, $3, $4, $5, $6)"
+	// query := "INSERT INTO sites (hash, title, description, name, site_url, image_url) VALUES (?, ?, ?, ?, ?, ?)" // MySQL
 	if _, err := r.db.Exec(query, site.Hash(), site.Title(), site.Description(), site.Name(), site.SiteURL(), site.ImageURL()); err != nil {
 		return err
 	}
@@ -55,7 +55,8 @@ func (r *Repository) CreateSite(site *domain.Site) error {
 
 func (r *Repository) GetSite(hash string) (*domain.Site, error) {
 	var title, description, name, siteURL, imageURL string
-	query := "SELECT title, description, name, site_url, image_url FROM sites WHERE hash = ?"
+	query := "SELECT title, description, name, site_url, image_url FROM sites WHERE hash = $1"
+	// query := "SELECT title, description, name, site_url, image_url FROM sites WHERE hash = ?" // MySQL
 	if err := r.db.QueryRow(query, hash).Scan(&title, &description, &name, &siteURL, &imageURL); err != nil {
 		return nil, err
 	}

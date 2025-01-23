@@ -60,12 +60,12 @@ func (h *Handler) GetOGPPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	hash := r.PathValue("hash")
-	siteURL, html, err := h.usecase.GetOGPPage(hash)
+	_, html, err := h.usecase.GetOGPPage(hash)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "text/html")
-	http.Redirect(w, r, siteURL, http.StatusSeeOther)
+	// http.Redirect(w, r, siteURL, http.StatusSeeOther)
 	fmt.Fprint(w, html)
 }

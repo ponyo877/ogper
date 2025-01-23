@@ -4,10 +4,17 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	_ "embed"
+	"strings"
+	"text/template"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/ponyo877/repost-ogp-pages/domain"
 )
+
+//go:embed ogp.html.tmpl
+var ogpHtmlTmpl string
 
 type Repository struct {
 	storage *s3.Client
@@ -37,18 +44,39 @@ func (r *Repository) PutFile(file []byte, filename, contentType string) error {
 	return err
 }
 
-func (r *Repository) CreateSite(title, description, name, siteURL, imageURL string) error {
-	query := "INSERT INTO sites (title, description, name, site_url, image_url) VALUES (?, ?, ?, ?, ?)"
-	if _, err := r.db.Exec(query, title, description, name, siteURL, imageURL); err != nil {
+func (r *Repository) CreateSite(site *domain.Site) error {
+
+	query := "INSERT INTO sites (hash, title, description, name, site_url, image_url) VALUES (?, ?, ?, ?, ?, ?)"
+	if _, err := r.db.Exec(query, site.Hash(), site.Title(), site.Description(), site.Name(), site.SiteURL(), site.ImageURL()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) GetSite(siteID int) (title, description, name, siteURL, imageURL string, err error) {
-	query := "SELECT title, description, name, site_url, image_url FROM sites WHERE id = ?"
-	if err = r.db.QueryRow(query, siteID).Scan(&title, &description, &name, &siteURL, &imageURL); err != nil {
-		return
+func (r *Repository) GetSite(hash string) (*domain.Site, error) {
+	var title, description, name, siteURL, imageURL string
+	query := "SELECT title, description, name, site_url, image_url FROM sites WHERE hash = ?"
+	if err := r.db.QueryRow(query, hash).Scan(&title, &description, &name, &siteURL, &imageURL); err != nil {
+		return nil, err
 	}
-	return
+	return domain.NewSite(hash, title, description, name, siteURL, imageURL), nil
+}
+
+func (r *Repository) GetHtml(site *domain.Site) (string, error) {
+	tmpl, err := template.New("sample").Parse(ogpHtmlTmpl)
+	if err != nil {
+		return "", err
+	}
+	data := map[string]any{
+		"title":       site.Title(),
+		"description": site.Description(),
+		"name":        site.Name(),
+		"siteURL":     site.SiteURL(),
+		"imageURL":    site.ImageURL(),
+	}
+	var buf strings.Builder
+	if err := tmpl.Execute(&buf, data); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }

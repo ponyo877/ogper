@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/oklog/ulid/v2"
+	"github.com/ponyo877/repost-ogp-pages/domain"
 )
 
 type Usecase struct {
@@ -13,14 +14,16 @@ type Usecase struct {
 
 type Repository interface {
 	PutFile(file []byte, filename, contentType string) error
-	CreateSite(title, description, name, siteURL, imageURL string) error
+	CreateSite(site *domain.Site) error
+	GetSite(hash string) (*domain.Site, error)
+	GetHtml(site *domain.Site) (string, error)
 }
 
 func NewUsecase(repository Repository) *Usecase {
 	return &Usecase{repository: repository}
 }
 
-func (u *Usecase) GenerateAltURL(title, description, name, siteURL string, file io.Reader, size int64) error {
+func (u *Usecase) GenerateOGPPage(title, description, name, siteURL string, file io.Reader, size int64) error {
 	filedata := make([]byte, size)
 	if _, err := file.Read(filedata); err != nil {
 		return err
@@ -39,5 +42,19 @@ func (u *Usecase) GenerateAltURL(title, description, name, siteURL string, file 
 		return err
 	}
 	imageURL := "https://r2.folks-chat.com/" + filename
-	return u.repository.CreateSite(title, description, name, siteURL, imageURL)
+	hash := domain.NewHash().String()
+	site := domain.NewSite(hash, title, description, name, siteURL, imageURL)
+	return u.repository.CreateSite(site)
+}
+
+func (u *Usecase) GetOGPPage(hash string) (string, string, error) {
+	site, err := u.repository.GetSite(hash)
+	if err != nil {
+		return "", "", err
+	}
+	html, err := u.repository.GetHtml(site)
+	if err != nil {
+		return "", "", err
+	}
+	return site.SiteURL(), html, nil
 }

@@ -24,7 +24,8 @@ func main() {
 	repository := repository.NewRepository(storage, db, bucket)
 	usecase := usecase.NewUsecase(repository)
 	handler := handler.NewHandler(usecase)
-	mux.HandleFunc("POST /upload", handler.GenerateAltURL)
+	mux.HandleFunc("POST /upload", handler.GenerateOGPPage)
+	mux.HandleFunc("GET /{hash}", handler.GetOGPPage)
 	log.Printf("running on 8080")
 	http.ListenAndServe(":8080", middleware.Logger(mux))
 }

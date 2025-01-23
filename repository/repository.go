@@ -28,21 +28,27 @@ func (r *Repository) GetRedirectPage() error {
 }
 
 func (r *Repository) PutFile(file []byte, filename, contentType string) error {
-	if _, err := r.storage.PutObject(context.TODO(), &s3.PutObjectInput{
+	_, err := r.storage.PutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket:      aws.String(r.bucket),
 		Key:         aws.String(filename),
 		Body:        bytes.NewReader(file),
 		ContentType: aws.String(contentType),
-	}); err != nil {
+	})
+	return err
+}
+
+func (r *Repository) CreateSite(title, description, name, siteURL, imageURL string) error {
+	query := "INSERT INTO sites (title, description, name, site_url, image_url) VALUES (?, ?, ?, ?, ?)"
+	if _, err := r.db.Exec(query, title, description, name, siteURL, imageURL); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) CreateSite(title, description, name, siteURL, imageURL string) error {
-	query := "INSERT INTO sites (title, description, name, url, image_url) VALUES (?, ?, ?, ?, ?)"
-	if _, err := r.db.Exec(query, title, description, name, siteURL, imageURL); err != nil {
-		return err
+func (r *Repository) GetSite(siteID int) (title, description, name, siteURL, imageURL string, err error) {
+	query := "SELECT title, description, name, site_url, image_url FROM sites WHERE id = ?"
+	if err = r.db.QueryRow(query, siteID).Scan(&title, &description, &name, &siteURL, &imageURL); err != nil {
+		return
 	}
-	return nil
+	return
 }

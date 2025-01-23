@@ -20,7 +20,7 @@ func NewUsecase(repository Repository) *Usecase {
 	return &Usecase{repository: repository}
 }
 
-func (u *Usecase) GenerateAltURL(file io.Reader, size int64, siteURL string) error {
+func (u *Usecase) GenerateAltURL(title, description, name, siteURL string, file io.Reader, size int64) error {
 	filedata := make([]byte, size)
 	if _, err := file.Read(filedata); err != nil {
 		return err
@@ -39,5 +39,5 @@ func (u *Usecase) GenerateAltURL(file io.Reader, size int64, siteURL string) err
 		return err
 	}
 	imageURL := "https://r2.folks-chat.com/" + filename
-	return u.repository.CreateSite("title", "description", "name", siteURL, imageURL)
+	return u.repository.CreateSite(title, description, name, siteURL, imageURL)
 }

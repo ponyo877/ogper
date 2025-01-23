@@ -11,5 +11,5 @@ func NewHandler(usecase Usecase) *Handler {
 }
 
 type Usecase interface {
-	GenerateAltURL(stream io.Reader, size int64, siteURL string) error
+	GenerateAltURL(title, description, name, siteURL string, file io.Reader, size int64) error
 }

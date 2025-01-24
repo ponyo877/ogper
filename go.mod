@@ -8,7 +8,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.36
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.63.2
 	github.com/lib/pq v1.10.9
-	github.com/oklog/ulid/v2 v2.1.0
 )
 
 require (

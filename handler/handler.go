@@ -13,6 +13,6 @@ func NewHandler(usecase Usecase) *Handler {
 }
 
 type Usecase interface {
-	GenerateOGPPage(title, description, name, siteURL string, file io.Reader, size int64) error
-	GetOGPPage(hash string) (string, string, error)
+	GenerateOGPPage(title, description, name, siteURL string, file io.Reader, size int64) (string, error)
+	GetOGPPage(hash string) (string, error)
 }

@@ -3,14 +3,17 @@ package usecase
 import (
 	"io"
 	"net/http"
+	"os"
 
-	"github.com/oklog/ulid/v2"
 	"github.com/ponyo877/ogper/domain"
 )
 
 type Usecase struct {
 	repository Repository
 }
+
+var fileDomain = os.Getenv("FILE_DOMAIN")
+var ogpPageDomain = os.Getenv("OGP_PAGE_DOMAIN")
 
 type Repository interface {
 	PutFile(file []byte, filename, contentType string) error
@@ -23,12 +26,12 @@ func NewUsecase(repository Repository) *Usecase {
 	return &Usecase{repository: repository}
 }
 
-func (u *Usecase) GenerateOGPPage(title, description, name, siteURL string, file io.Reader, size int64) error {
+func (u *Usecase) GenerateOGPPage(title, description, name, siteURL string, file io.Reader, size int64) (string, error) {
 	filedata := make([]byte, size)
 	if _, err := file.Read(filedata); err != nil {
-		return err
+		return "", err
 	}
-	id := ulid.MustNew(ulid.Now(), nil).String()
+	hash := domain.NewHash().String()
 	contentType := http.DetectContentType(filedata)
 	var contentTypeToExtension = map[string]string{
 		"image/webp": "webp",
@@ -36,25 +39,27 @@ func (u *Usecase) GenerateOGPPage(title, description, name, siteURL string, file
 		"image/jpeg": "jpg",
 	}
 	ext := contentTypeToExtension[contentType]
-	filename := id + "." + ext
+	filename := hash + "." + ext
 
 	if err := u.repository.PutFile(filedata, filename, contentType); err != nil {
-		return err
+		return "", err
 	}
-	imageURL := "https://r2.folks-chat.com/" + filename
-	hash := domain.NewHash().String()
+	imageURL := fileDomain + filename
 	site := domain.NewSite(hash, title, description, name, siteURL, imageURL)
-	return u.repository.CreateSite(site)
+	if err := u.repository.CreateSite(site); err != nil {
+		return "", err
+	}
+	return ogpPageDomain + hash, nil
 }
 
-func (u *Usecase) GetOGPPage(hash string) (string, string, error) {
+func (u *Usecase) GetOGPPage(hash string) (string, error) {
 	site, err := u.repository.GetSite(hash)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 	html, err := u.repository.GetHtml(site)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
-	return site.SiteURL(), html, nil
+	return html, nil
 }

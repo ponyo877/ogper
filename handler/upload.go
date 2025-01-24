@@ -44,14 +44,14 @@ func (h *Handler) GenerateOGPPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "url parameter is missing", http.StatusBadRequest)
 		return
 	}
-
-	if err := h.usecase.GenerateOGPPage(title, description, name, siteURL, stream, header.Size); err != nil {
+	ogpPageURL, err := h.usecase.GenerateOGPPage(title, description, name, siteURL, stream, header.Size)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	fmt.Fprintf(w, "File uploaded successfully: %s\n", header.Filename)
-	fmt.Fprintf(w, "URL: %s\n", siteURL)
+	fmt.Fprintf(w, "URL: %s\n", ogpPageURL)
 }
 
 func (h *Handler) GetOGPPage(w http.ResponseWriter, r *http.Request) {
@@ -60,12 +60,11 @@ func (h *Handler) GetOGPPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	hash := r.PathValue("hash")
-	_, html, err := h.usecase.GetOGPPage(hash)
+	html, err := h.usecase.GetOGPPage(hash)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "text/html")
-	// http.Redirect(w, r, siteURL, http.StatusSeeOther)
 	fmt.Fprint(w, html)
 }

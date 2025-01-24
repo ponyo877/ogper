@@ -5,7 +5,7 @@ import (
 	"math/big"
 )
 
-var maxHexatridecimal7 = big.NewInt(78364164096)
+var maxHexatridecimal7 = big.NewInt(78364164096) // 36^7
 
 type Hash struct {
 	num int64
@@ -19,7 +19,7 @@ func NewHash() *Hash {
 	return &Hash{n.Int64()}
 }
 
-// a-z0-9の36進数に変換
+// transform to 36 base number
 func (h *Hash) String() string {
 	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 	result := make([]byte, 0)

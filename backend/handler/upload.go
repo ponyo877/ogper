@@ -13,39 +13,21 @@ func (h *Handler) GenerateOGPPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := r.ParseMultipartForm(10 << 20) // 10 MB
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	siteURL := r.FormValue("url")
+	if siteURL == "" {
+		http.Error(w, "url is required", http.StatusBadRequest)
 		return
 	}
-
 	stream, header, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer stream.Close()
-
-	title := r.FormValue("title")
-	if title == "" {
-		http.Error(w, "title parameter is missing", http.StatusBadRequest)
-		return
-	}
-	description := r.FormValue("description")
-	if description == "" {
-		http.Error(w, "description parameter is missing", http.StatusBadRequest)
-		return
-	}
 	name := r.FormValue("name")
-	if name == "" {
-		http.Error(w, "name parameter is missing", http.StatusBadRequest)
-		return
-	}
-	siteURL := r.FormValue("url")
-	if siteURL == "" {
-		http.Error(w, "url parameter is missing", http.StatusBadRequest)
-		return
-	}
+	title := r.FormValue("title")
+	description := r.FormValue("description")
+
 	ogpPageURL, err := h.usecase.GenerateOGPPage(title, description, name, siteURL, stream, header.Size)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

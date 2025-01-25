@@ -87,6 +87,7 @@ func (h *Handler) ListSitesByUserID(w http.ResponseWriter, r *http.Request) {
 		Name        string `json:"name"`
 		SiteURL     string `json:"site_url"`
 		ImageURL    string `json:"image_url"`
+		PublishedAt string `json:"published_at"`
 	}
 	responseList := []Response{}
 	for _, site := range sites {
@@ -97,6 +98,7 @@ func (h *Handler) ListSitesByUserID(w http.ResponseWriter, r *http.Request) {
 			Name:        site.Name(),
 			SiteURL:     site.SiteURL(),
 			ImageURL:    site.ImageURL(),
+			PublishedAt: site.PublishedAt().Format(time.RFC3339),
 		}
 		responseList = append(responseList, response)
 	}

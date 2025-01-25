@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useEffect } from 'react';
 import { ulid } from 'ulid';
-import { LinkCreateForm } from './components/LinkCreateForm';
+import { LinkCreatePage } from './pages/LinkCreatePage';
 import Sidebar from './components/Sidebar';
 import LinksPage from './pages/LinksPage';
 import './App.css';
@@ -33,10 +33,14 @@ function App() {
           <Routes>
             <Route path="/" element={
               <div className="app-container">
-                <LinkCreateForm onSubmit={handleSubmit} onCancel={handleCancel} />
+                <LinkCreatePage onSubmit={handleSubmit} onCancel={handleCancel} />
               </div>
             } />
-            <Route path="/links" element={<LinksPage />} />
+            <Route path="/links" element={
+              <div className="app-container">
+                <LinksPage />
+              </div>
+            } />
           </Routes>
         </div>
       </div>

@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { SuccessModal } from './SuccessModal';
+import { SuccessModal } from '../components/SuccessModal';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_HOST_NAME || 'http://localhost:8080'
 });
 
-interface LinkCreateFormProps {
+interface LinkCreatePageProps {
   onSubmit: (url: string, title?: string, description?: string, name?: string) => void;
   onCancel: () => void;
 }
 
-export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
+export const LinkCreatePage = ({ onSubmit, onCancel }: LinkCreatePageProps) => {
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');

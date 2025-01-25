@@ -66,11 +66,18 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
     }
 
     try {
+      const userHash = localStorage.getItem('user_hash');
+      if (!userHash) {
+        setError('User hash not found');
+        return;
+      }
+
       const formData = new FormData();
       formData.append('url', url);
       formData.append('title', title);
       formData.append('description', description);
       formData.append('name', name);
+      formData.append('user_hash', userHash);
       if (image) {
         formData.append('image', image);
       }
@@ -93,6 +100,12 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
         setImage(null);
         setPreview(null);
         setError('');
+        
+        // Reset file input
+        const fileInput = document.getElementById('image') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
       } else {
         setError('Failed to update');
       }

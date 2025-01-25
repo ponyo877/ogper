@@ -18,17 +18,18 @@ func (h *Handler) GenerateOGPPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "url is required", http.StatusBadRequest)
 		return
 	}
-	stream, header, err := r.FormFile("file")
+	src, header, err := r.FormFile("image")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	defer stream.Close()
+	defer src.Close()
+
 	name := r.FormValue("name")
 	title := r.FormValue("title")
 	description := r.FormValue("description")
 
-	ogpPageURL, err := h.usecase.GenerateOGPPage(title, description, name, siteURL, stream, header.Size)
+	ogpPageURL, err := h.usecase.GenerateOGPPage(title, description, name, siteURL, src, header.Size)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

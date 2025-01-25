@@ -1,4 +1,5 @@
 import './OGPCard.css';
+import { useState } from 'react';
 
 type OGP = {
   title: string;
@@ -13,6 +14,17 @@ interface OGPCardProps {
 }
 
 const OGPCard = ({ ogpData }: OGPCardProps) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((err) => console.error('Failed to copy:', err));
+  };
+
   return (
     <div className="ogp-card">
       <div className="thumbnail-wrapper">
@@ -26,12 +38,30 @@ const OGPCard = ({ ogpData }: OGPCardProps) => {
       <div className="content">
         <h3 className="title">{ogpData.title}</h3>
         <p className="name">{ogpData.name}</p>
-        <a className="site-name" href={ogpData.ogp_url}>
-          {ogpData.ogp_url.replace('https://', '')}
-        </a>
-        <a className="site-name" href={ogpData.site_url}>
-          {ogpData.site_url.replace('https://', '')}
-        </a>
+        <div className="divider">
+          <a className="site-name" href={ogpData.ogp_url}>
+            {ogpData.ogp_url.replace('https://', '')}
+          </a>
+          <button
+            className="copy-button2"
+            onClick={() => handleCopy(ogpData.ogp_url)}
+            title="Copy URL"
+          >
+            {copied ? '✓' : '⎘'}
+          </button>
+        </div>
+        <div className="divider">
+          <a className="site-name" href={ogpData.site_url}>
+            {ogpData.site_url.replace('https://', '')}
+          </a>
+          <button
+            className="copy-button2"
+            onClick={() => handleCopy(ogpData.site_url)}
+            title="Copy URL"
+          >
+            {copied ? '✓' : '⎘'}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -67,6 +67,32 @@
   .check-icon {
     fill: #3b82f6;
   }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+  
+  .copy-button2 {
+    font-size: 0.9rem;
+    background: white;
+    color: black;
+    border: 1px solid #eaeaea;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .copy-button2.copied {
+    background: #10b981;
+  }
+  
+  .copy-button2:hover {
+    background: #1d4ed8;
+  }
   
   .site-name {
     font-size: 0.9rem;

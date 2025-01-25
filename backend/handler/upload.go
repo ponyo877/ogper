@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 func (h *Handler) GenerateOGPPage(w http.ResponseWriter, r *http.Request) {
@@ -50,8 +52,18 @@ func (h *Handler) GenerateOGPPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "File uploaded successfully: %s\n", header.Filename)
-	fmt.Fprintf(w, "URL: %s\n", ogpPageURL)
+	type Response struct {
+		URL       string `json:"url"`
+		CreatedAt string `json:"created_at"`
+	}
+
+	response := Response{
+		URL:       ogpPageURL,
+		CreatedAt: time.Now().Format(time.RFC3339),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 func (h *Handler) GetOGPPage(w http.ResponseWriter, r *http.Request) {

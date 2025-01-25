@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-var ogpPageDomain = os.Getenv("OGP_PAGE_DOMAIN")
+var topDomain = os.Getenv("TOP_DOMAIN")
 
 func CORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +19,7 @@ func CORS(next http.Handler) http.Handler {
 		}
 
 		// Allow production domain
-		if env == "production" && origin == ogpPageDomain {
+		if env == "production" && origin == topDomain {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 		}
 

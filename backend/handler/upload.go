@@ -21,13 +21,22 @@ func (h *Handler) GenerateOGPPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "url is required", http.StatusBadRequest)
 		return
 	}
+	const maxUploadSize = 1 << 20 // 1MB
+	err := r.ParseMultipartForm(maxUploadSize)
+	if err != nil {
+		http.Error(w, "File too large. Maximum size is 1MB", http.StatusBadRequest)
+		return
+	}
+
 	src, header, err := r.FormFile("image")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	defer src.Close()
-
+	if header.Size > maxUploadSize {
+		http.Error(w, "File too large. Maximum size is 1MB", http.StatusBadRequest)
+		return
+	}
 	name := r.FormValue("name")
 	title := r.FormValue("title")
 	description := r.FormValue("description")

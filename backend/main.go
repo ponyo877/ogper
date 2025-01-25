@@ -18,7 +18,7 @@ func main() {
 		log.Fatal(err)
 	}
 	// db, err := config.NewMySQLConfig()
-	db, err := config.NewPosrgreSQLConfig()
+	db, err := config.NewPostgreSQLConfig()
 	if err != nil {
 		log.Fatal(err)
 	}

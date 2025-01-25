@@ -22,7 +22,7 @@ func NewMySQLConfig() (*sql.DB, error) {
 	return db, err
 }
 
-func NewPosrgreSQLConfig() (*sql.DB, error) {
+func NewPostgreSQLConfig() (*sql.DB, error) {
 	host := os.Getenv("POSTGRES_HOST")
 	user := os.Getenv("POSTGRES_USER")
 	password := os.Getenv("POSTGRES_PASSWORD")

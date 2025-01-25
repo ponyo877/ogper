@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type Site struct {
 	hash        string
 	title       string
@@ -7,9 +9,11 @@ type Site struct {
 	name        string
 	siteURL     string
 	imageURL    string
+	userHash    string
+	publishedAt time.Time
 }
 
-func NewSite(hash, title, description, name, siteURL, imageURL string) *Site {
+func NewSite(hash, title, description, name, siteURL, imageURL, userHash string, publishedAt time.Time) *Site {
 	return &Site{
 		hash:        hash,
 		title:       title,
@@ -17,6 +21,8 @@ func NewSite(hash, title, description, name, siteURL, imageURL string) *Site {
 		name:        name,
 		siteURL:     siteURL,
 		imageURL:    imageURL,
+		userHash:    userHash,
+		publishedAt: publishedAt,
 	}
 }
 
@@ -42,4 +48,12 @@ func (s *Site) SiteURL() string {
 
 func (s *Site) ImageURL() string {
 	return s.imageURL
+}
+
+func (s *Site) UserHash() string {
+	return s.userHash
+}
+
+func (s *Site) PublishedAt() time.Time {
+	return s.publishedAt
 }

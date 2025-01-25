@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/ponyo877/ogper/domain"
 )
@@ -21,13 +22,14 @@ type Repository interface {
 	CreateSite(site *domain.Site) error
 	GetSite(hash string) (*domain.Site, error)
 	GetHtml(site *domain.Site) (string, error)
+	ListSitesByUserID(userHash string) ([]*domain.Site, error)
 }
 
 func NewUsecase(repository Repository) *Usecase {
 	return &Usecase{repository: repository}
 }
 
-func (u *Usecase) GenerateOGPPage(title, description, name, siteURL string, file io.Reader, size int64) (string, error) {
+func (u *Usecase) GenerateOGPPage(title, description, name, siteURL, userHash string, file io.Reader, size int64) (string, error) {
 	filedata := make([]byte, size)
 	if _, err := file.Read(filedata); err != nil {
 		return "", err
@@ -49,7 +51,7 @@ func (u *Usecase) GenerateOGPPage(title, description, name, siteURL string, file
 		return "", err
 	}
 	imageURL := fileDomain + "/" + filename
-	site := domain.NewSite(hash, title, description, name, siteURL, imageURL)
+	site := domain.NewSite(hash, title, description, name, siteURL, imageURL, userHash, time.Now())
 	if err := u.repository.CreateSite(site); err != nil {
 		return "", err
 	}
@@ -66,4 +68,12 @@ func (u *Usecase) GetOGPPage(hash string) (string, error) {
 		return "", err
 	}
 	return html, nil
+}
+
+func (u *Usecase) ListSitesByUserID(userHash string) ([]*domain.Site, error) {
+	sites, err := u.repository.ListSitesByUserID(userHash)
+	if err != nil {
+		return nil, err
+	}
+	return sites, nil
 }

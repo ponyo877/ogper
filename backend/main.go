@@ -27,6 +27,7 @@ func main() {
 	handler := handler.NewHandler(usecase)
 	mux.HandleFunc("POST /upload", handler.GenerateOGPPage)
 	mux.HandleFunc("GET /{hash}", handler.GetOGPPage)
+	mux.HandleFunc("GET /links", handler.ListSitesByUserID)
 	log.Printf("running on 8080")
 	http.ListenAndServe(":8080", middleware.CORS(middleware.Logger(mux)))
 }

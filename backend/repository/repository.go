@@ -83,7 +83,7 @@ func (r *Repository) GetHtml(site *domain.Site) (string, error) {
 }
 
 func (r *Repository) ListSitesByUserID(userHash string) ([]*domain.Site, error) {
-	query := "SELECT hash, title, description, name, site_url, image_url, published_at FROM sites WHERE user_hash = $1"
+	query := "SELECT hash, title, description, name, site_url, image_url, published_at FROM sites WHERE user_hash = $1 ORDER BY published_at DESC"
 	rows, err := r.db.Query(query, userHash)
 	if err != nil {
 		return nil, err

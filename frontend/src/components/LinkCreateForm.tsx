@@ -1,4 +1,9 @@
 import { useState } from 'react';
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_HOST_NAME || 'http://localhost:8080'
+});
 
 interface LinkCreateFormProps {
   onSubmit: (url: string, title?: string, description?: string, name?: string) => void;
@@ -41,18 +46,43 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && (file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp')) {
       handleFileChange(file);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url) {
       setError('URL is required');
       return;
     }
-    onSubmit(url, title, description, name);
+
+    try {
+      const formData = new FormData();
+      formData.append('url', url);
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('name', name);
+      if (image) {
+        formData.append('image', image);
+      }
+
+      const response = await api.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.status === 200) {
+        onSubmit(url, title, description, name);
+      } else {
+        setError('Failed to update');
+      }
+    } catch (error) {
+      setError('An error occurred while updating');
+      console.error(error);
+    }
   };
 
   return (
@@ -60,7 +90,13 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
       <div className="header">
         <h1>OGPer</h1>
         <p className="subtitle">
-        Easily add and modify OGP for your URLs
+          Easily add and modify <span className="tooltip-icon">
+            OGP
+            <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+              <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+            </svg>
+          </span> for your URLs
         </p>
       </div>
 
@@ -106,7 +142,7 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
               <input
                 id="image"
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 className="file-upload-input"
                 onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
               />

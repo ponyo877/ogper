@@ -58,6 +58,48 @@
 .subtitle {
   color: #666;
   font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tooltip-icon {
+  cursor: pointer;
+  color: #0076ba;
+  position: relative;
+}
+
+.tooltip-icon:hover::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 10px;
+  width: 250px;
+  height: 140px;
+  background: #0076ba url('/tooltip-image.png') no-repeat center/contain;
+  color: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  padding: 16px;
+}
+
+.tooltip-icon:hover::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #0076ba;
+  z-index: 11;
 }
 
 .upgrade-link {
@@ -109,9 +151,11 @@
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
+.form-group input::placeholder,
 .form-group textarea::placeholder {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-size: 1rem;
+  color: #999;
 }
 
 .file-upload-container {

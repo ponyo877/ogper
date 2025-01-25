@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { SuccessModal } from './SuccessModal';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_HOST_NAME || 'http://localhost:8080'
@@ -19,6 +20,8 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState('');
 
   const handleFileChange = (file: File | null) => {
     setImage(file);
@@ -57,6 +60,10 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
       setError('URL is required');
       return;
     }
+    if (!image) {
+      setError('Image is required');
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -75,7 +82,17 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
       });
 
       if (response.status === 200) {
+        setGeneratedLink(response.data.url);
+        setShowModal(true);
         onSubmit(url, title, description, name);
+        // Reset form state
+        setUrl('');
+        setTitle('');
+        setDescription('');
+        setName('');
+        setImage(null);
+        setPreview(null);
+        setError('');
       } else {
         setError('Failed to update');
       }
@@ -116,7 +133,15 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="image">Image</label>
+            <label htmlFor="image">
+              Image
+              <span className="image-tooltip">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+              </span>
+            </label>
             <div
               className={`file-upload-container ${isDragging ? 'dragover' : ''}`}
               onDragOver={handleDragOver}
@@ -147,6 +172,7 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
                 onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
               />
             </div>
+            {error && <div className="image-error">Image is required</div>}
           </div>
 
           <div className="form-group">
@@ -183,8 +209,6 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
               For inquiries, please contact <a href="https://twitter.com/ponyo877" target="_blank" rel="noopener noreferrer">X(@ponyo877)</a>
           </div>
 
-          {error && <div className="error-message">{error}</div>}
-
           <div className="footer">
             <div className="footer-content">
               <button type="submit" className="primary">
@@ -192,6 +216,13 @@ export const LinkCreateForm = ({ onSubmit, onCancel }: LinkCreateFormProps) => {
               </button>
             </div>
           </div>
+          
+          {showModal && (
+            <SuccessModal
+              link={generatedLink}
+              onClose={() => setShowModal(false)}
+            />
+          )}
         </form>
       </div>
     </div>

@@ -28,5 +28,5 @@ func main() {
 	mux.HandleFunc("POST /upload", handler.GenerateOGPPage)
 	mux.HandleFunc("GET /{hash}", handler.GetOGPPage)
 	log.Printf("running on 8080")
-	http.ListenAndServe(":8080", middleware.Logger(mux))
+	http.ListenAndServe(":8080", middleware.CORS(middleware.Logger(mux)))
 }

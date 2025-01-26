@@ -5,8 +5,8 @@ import (
 	"context"
 	"database/sql"
 	_ "embed"
+	"html/template"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"

@@ -1,6 +1,6 @@
 # OGPer - OGP Card Generator
 
-OGPer is an open-source tool for easily generating and managing OGP (Open Graph Protocol) cards.
+OGPer is an open-source tool for easily generating and managing OGP (Open Graph Protocol) cards.   
 https://ogper.pages.dev
 
 
@@ -16,7 +16,7 @@ https://ogper.pages.dev
 
 https://github.com/user-attachments/assets/44ef8222-9834-470d-aea2-a6f6f0446ec2
 
-below is generated page with OGP in this video
+below is generated page with OGP in this video   
 https://ogper.onrender.com/pd3ae4d
 
 ## Directory Structure

@@ -1,4 +1,4 @@
-# OGPer - OGP Setter
+# OGPer - Easy OGP Setter
 
 OGPer is an open-source tool for easily generating and managing OGP (Open Graph Protocol) cards.   
 https://ogper.pages.dev

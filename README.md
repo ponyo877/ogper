@@ -14,8 +14,7 @@ https://ogper.pages.dev
 
 ## Usage
 
-[Insert usage video here]
-
+https://github.com/user-attachments/assets/44ef8222-9834-470d-aea2-a6f6f0446ec2
 below is generated page with OGP in this video
 https://ogper.onrender.com/pd3ae4d
 
